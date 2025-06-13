@@ -15,10 +15,10 @@ class State(TypedDict):
 
 graph_builder = StateGraph(State)
 
-import os
 from langchain.chat_models import init_chat_model
+from dotenv import load_dotenv
 
-os.environ["OPENAI_API_KEY"] = "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"
+load_dotenv()
 
 llm = init_chat_model("openai:gpt-4.1")
 
