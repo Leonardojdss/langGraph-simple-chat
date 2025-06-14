@@ -56,11 +56,9 @@ while True:
         if user_input.lower() in ["quit", "exit", "q"]:
             print("Goodbye!")
             break
-        # Adiciona a mensagem do usuário ao histórico
+
         memory.append({"role": "user", "content": user_input})
-        # Passa o histórico completo para o fluxo
         chat = stream_graph_updates(memory)
-        # Adiciona a resposta do assistente ao histórico
         memory.append({"role": "assistant", "content": chat["assistant-response"]})
     except Exception as e:
         print("Erro:", e)
