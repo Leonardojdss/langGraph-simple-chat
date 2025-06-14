@@ -7,9 +7,9 @@ from langgraph.graph.message import add_messages
 
 
 class State(TypedDict):
-    # Messages have the type "list". The `add_messages` function
-    # in the annotation defines how this state key should be updated
-    # (in this case, it appends messages to the list, rather than overwriting them)
+    # As mensagens têm o tipo "list". A função `add_messages` 
+    # na anotação define como essa chave de estado deve ser atualizada
+    # (neste caso, ela adiciona mensagens à lista, em vez de sobrescrevê-las)
     messages: Annotated[list, add_messages]
 
 
@@ -25,10 +25,9 @@ llm = init_chat_model("openai:gpt-4.1")
 def chatbot(state: State):
     return {"messages": [llm.invoke(state["messages"])]}
 
-
-# The first argument is the unique node name
-# The second argument is the function or object that will be called whenever
-# the node is used.
+# O primeiro argumento é o nome único do nó
+# O segundo argumento é a função ou objeto que será chamado sempre que
+# o nó for utilizado.
 graph_builder.add_node("chatbot", chatbot)
 
 graph_builder.add_edge(START, "chatbot")
@@ -40,14 +39,16 @@ from IPython.display import Image, display
 try:
     display(Image(graph.get_graph().draw_mermaid_png()))
 except Exception:
-    # This requires some extra dependencies and is optional
     pass
 
-def stream_graph_updates(user_input: str):
-    for event in graph.stream({"messages": [{"role": "user", "content": user_input}]}):
+def stream_graph_updates(messages: list):
+    for event in graph.stream({"messages": messages}):
         for value in event.values():
             print("Assistant:", value["messages"][-1].content)
+            result = {"assistant-response": value["messages"][-1].content}
+            return result
 
+memory = []
 
 while True:
     try:
@@ -55,10 +56,12 @@ while True:
         if user_input.lower() in ["quit", "exit", "q"]:
             print("Goodbye!")
             break
-        stream_graph_updates(user_input)
-    except:
-        # fallback if input() is not available
-        user_input = "What do you know about LangGraph?"
-        print("User: " + user_input)
-        stream_graph_updates(user_input)
+        # Adiciona a mensagem do usuário ao histórico
+        memory.append({"role": "user", "content": user_input})
+        # Passa o histórico completo para o fluxo
+        chat = stream_graph_updates(memory)
+        # Adiciona a resposta do assistente ao histórico
+        memory.append({"role": "assistant", "content": chat["assistant-response"]})
+    except Exception as e:
+        print("Erro:", e)
         break
