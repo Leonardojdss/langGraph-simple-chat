@@ -1,4 +1,4 @@
-# LangGraph Sample Chat
+# LangGraph Simple Chat
 
 Este é um projeto de exemplo que demonstra como criar um chatbot simples utilizando a biblioteca [LangGraph](https://github.com/langchain-ai/langgraph) com um modelo de linguagem da OpenAI (GPT-4.1).
 
